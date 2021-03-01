@@ -21,7 +21,9 @@ final class ChapterListViewController: UITableViewController {
     }
 
     override func viewDidLoad() {
+        super.viewDidLoad()
         let session = URLSession.shared
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
 
         let dataTask = session.dataTask(with: URL(string: "https://the-one-api.dev/v2/book/\(bookInfo.id)/chapter")!) { (data, response, error) in
             guard let data = data else { return }
@@ -43,7 +45,7 @@ final class ChapterListViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         cell.textLabel?.text = chapters[indexPath.row].chapterName
         return cell
     }
