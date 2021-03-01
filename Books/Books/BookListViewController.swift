@@ -14,12 +14,14 @@ final class BookListViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        self.title = "Books"
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         let session = URLSession.shared
 
         let dataTask = session.dataTask(with: URL(string: "https://the-one-api.dev/v2/book/")!) { (data, response, error) in
             guard let data = data else { return }
             do {
+           //     print(String(decoding: data, as: UTF8.self))
                 let responseObject = try JSONDecoder().decode(BookResponse.self, from: data)
                 self.bookInfos = responseObject.docs
                 DispatchQueue.main.async {
@@ -37,7 +39,7 @@ final class BookListViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         cell.textLabel?.text = bookInfos[indexPath.row].name
         return cell
     }
@@ -49,27 +51,6 @@ final class BookListViewController: UITableViewController {
         let viewController = ChapterListViewController(bookInfo: bookInfo)
         present(viewController, animated: true, completion: nil)
 //        navigationController?.pushViewController(viewController, animated: true)
-    }
-}
-
-final class BookListViewModel {
-    let session: URLSession
-
-    init(session: URLSession = .shared) {
-        self.session = session
-    }
-
-    func loadData(completion: @escaping ([String]) -> Void) {
-        let dataTask = session.dataTask(with: URL(string: "https://the-one-api.dev/v2/book/")!) { (data, response, error) in
-            guard let data = data else { return }
-            do {
-                let responseObject = try JSONDecoder().decode(BookResponse.self, from: data)
-                completion(responseObject.docs.map({$0.name}))
-            } catch {
-                print(error)
-            }
-        }
-        dataTask.resume()
     }
 }
 
